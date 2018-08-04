@@ -43,10 +43,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Hapi = __importStar(require("hapi"));
+var fs = __importStar(require("fs"));
 var MyServer = /** @class */ (function () {
     function MyServer() {
         this.host = 'localhost';
-        this.port = 8000;
+        this.port = 8080;
         this.server = new Hapi.Server({
             host: this.host,
             port: this.port,
@@ -78,27 +79,47 @@ var MyServer = /** @class */ (function () {
     };
     // Routing
     MyServer.prototype.route = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                try {
-                    this.server.route({
-                        method: 'GET',
-                        path: '/hello',
-                        handler: function (request, h) {
-                            return 'hello world';
-                        }
-                    });
-                    return [2 /*return*/, this.server];
-                }
-                catch (err) {
-                    console.log('Error at route() ' + err);
-                    throw err;
-                }
-                return [2 /*return*/];
-            });
+        this.server.route({
+            method: 'GET',
+            path: '/write',
+            handler: this.handleWrite,
         });
+        this.server.route({
+            method: 'GET',
+            path: '/read',
+            handler: this.handleRead,
+        });
+        this.server.route({
+            method: 'GET',
+            path: '/delete',
+            handler: this.handleDelete,
+        });
+        return this.server;
+    };
+    // Handle Routing
+    MyServer.prototype.handleWrite = function (request) {
+        try {
+            var filename = 'storage.txt';
+            // Get JSON parameter phrase
+            var phrase = 'PLACEHOLDER string 1'; // request.payload.phrase;
+            // Write phrase to end of storage.txt
+            fs.writeFileSync(filename, phrase + '\n', { flag: 'a+' });
+            // Store phrases in file in a phrase array, filter out empty lines
+            var phraseArray = fs.readFileSync(filename).toString().split('\n');
+            phraseArray = phraseArray.filter(function (line) { return line != ''; });
+            return '{id: ' + phraseArray.length + '}';
+        }
+        catch (err) {
+            console.log('Error at handleWrite() ' + err);
+            throw err;
+        }
+    };
+    MyServer.prototype.handleRead = function () {
+        return 'hello world';
+    };
+    MyServer.prototype.handleDelete = function () {
+        return 'hello world';
     };
     return MyServer;
 }());
-exports.default = MyServer;
 var testServer = new MyServer();

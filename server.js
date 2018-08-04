@@ -80,7 +80,7 @@ var MyServer = /** @class */ (function () {
     // Routing
     MyServer.prototype.route = function () {
         this.server.route({
-            method: 'GET',
+            method: 'POST',
             path: '/write',
             handler: this.handleWrite,
         });
@@ -90,21 +90,26 @@ var MyServer = /** @class */ (function () {
             handler: this.handleRead,
         });
         this.server.route({
-            method: 'GET',
-            path: '/delete',
+            method: 'DELETE',
+            path: '/delete/{line}',
             handler: this.handleDelete,
         });
         return this.server;
     };
     // Handle Routing
+    // TODO: Look into async write and read using promisify
     MyServer.prototype.handleWrite = function (request) {
         try {
             var filename = 'storage.txt';
             // Get JSON parameter phrase
-            var phrase = 'PLACEHOLDER string 1'; // request.payload.phrase;
+            // TODO: Look into JSON parse in tyepscript
+            var myPayload = JSON.stringify(request.payload);
+            var phrase = myPayload.replace(/"/g, '')
+                .replace(/}/, '')
+                .replace(/\\/g, '').split(':')[1];
             // Write phrase to end of storage.txt
             fs.writeFileSync(filename, phrase + '\n', { flag: 'a+' });
-            // Store phrases in file in a phrase array, filter out empty lines
+            // Store phrases in file in a phrase array, filter out empty (last) line
             var phraseArray = fs.readFileSync(filename).toString().split('\n');
             phraseArray = phraseArray.filter(function (line) { return line != ''; });
             return '{id: ' + phraseArray.length + '}';
@@ -115,10 +120,53 @@ var MyServer = /** @class */ (function () {
         }
     };
     MyServer.prototype.handleRead = function () {
-        return 'hello world';
+        try {
+            var filename = 'storage.txt';
+            // Array of phrases where index 0 is line 1 etc, filter out empty (last) line
+            var phraseArray = fs.readFileSync(filename).toString().split('\n');
+            phraseArray = phraseArray.filter(function (line) { return line != ''; });
+            // Construct wrapper object for array of objects
+            var myPhrasesObject = {
+                phrases: [],
+            };
+            // Construct id phrase pair to put into phrases object
+            for (var i = 0; i < phraseArray.length; i++) {
+                var lineNumber = i + 1;
+                var myPhraseObject = {
+                    id: lineNumber.toString(),
+                    phrase: phraseArray[i],
+                };
+                myPhrasesObject.phrases.push(myPhraseObject);
+            }
+            // Return wrapper object that contains the array of phrases
+            return myPhrasesObject;
+        }
+        catch (err) {
+            console.log('Error at handleRead() ' + err);
+            throw err;
+        }
     };
-    MyServer.prototype.handleDelete = function () {
-        return 'hello world';
+    MyServer.prototype.handleDelete = function (request) {
+        try {
+            var filename = 'storage.txt';
+            // Read file and store in array, no filtering out empty last line this time
+            var phraseArray = fs.readFileSync(filename).toString().split('\n');
+            // Remove phrase from Array, return if phrase doesn't exist at line
+            var lineNumber = encodeURIComponent(request.params.line);
+            var index = parseInt(lineNumber) - 1;
+            if (phraseArray[index] === undefined || phraseArray[index] === '') {
+                return '{success: false}';
+            }
+            phraseArray.splice(index, 1);
+            // Write Array to file
+            var newTextInFile = phraseArray.join('\n');
+            fs.writeFileSync(filename, newTextInFile);
+            return '{success: true}';
+        }
+        catch (err) {
+            console.log('Error at handleRead() ' + err);
+            throw err;
+        }
     };
     return MyServer;
 }());

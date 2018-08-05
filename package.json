@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend.js",
-    "startServer": "tsc && npm start"
+    "startServer": "npm install node && npm install typescript && npm install hapi && tsc && npm start"
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +14,9 @@
     "@types/hapi": "^17.0.17",
     "@types/node": "^10.5.5",
     "backend": "0.0.0",
-    "hapi": "^17.5.3"
+    "hapi": "^17.5.3",
+    "node": "^10.8.0",
+    "typescript": "^3.0.1"
   },
   "devDependencies": {},
   "repository": {

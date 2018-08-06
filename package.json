@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend.js",
-    "startServer": "npm install node && npm install typescript && npm install hapi && tsc && npm start"
+    "startServer": "tsc && npm start"
   },
   "author": "",
   "license": "ISC",

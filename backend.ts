@@ -68,12 +68,12 @@ class MyServer {
   // TODO: Look into async write and read using promisify
   private handleWrite(request: Hapi.Request): string {
     try {
-      let filename: string = 'storage.txt';
+      const filename: string = 'storage.txt';
 
       // Get JSON parameter phrase
       // TODO: Look into JSON parse in tyepscript
-      let myPayload: string = JSON.stringify(request.payload);
-      let phrase: string = myPayload.replace(/"/g, '')
+      const myPayload: string = JSON.stringify(request.payload);
+      const phrase: string = myPayload.replace(/"/g, '')
                                     .replace(/}/, '')
                                     .replace(/\\/g, '').split(':')[1];
 
@@ -93,7 +93,7 @@ class MyServer {
 
   private handleRead(): MyPhrasesObject {
     try {
-      let filename: string = 'storage.txt';
+      const filename: string = 'storage.txt';
 
       // Array of phrases where index 0 is line 1 etc, filter out empty (last) line
       let phraseArray: Array<string> = fs.readFileSync(filename).toString().split('\n');
@@ -106,7 +106,7 @@ class MyServer {
 
       // Construct id phrase pair to put into phrases object
       for (let i = 0; i < phraseArray.length; i++) {
-        let lineNumber: number = i + 1;
+        const lineNumber: number = i + 1;
         let myPhraseObject: MyLineNumberPhraseObject = {
           id: lineNumber.toString(),
           phrase: phraseArray[i],
@@ -124,13 +124,13 @@ class MyServer {
 
   private handleDelete(request: Hapi.Request): string {
     try {
-      let filename: string = 'storage.txt';
+      const filename: string = 'storage.txt';
 
       // Read file and store in array, no filtering out empty last line this time
       let phraseArray: Array<string> = fs.readFileSync(filename).toString().split('\n');
 
       // Remove phrase from Array, return if phrase doesn't exist at line
-      let lineNumber: string = encodeURIComponent(request.params.line);
+      const lineNumber: string = encodeURIComponent(request.params.line);
       let index: number = parseInt(lineNumber) - 1;
       if (phraseArray[index] === undefined || phraseArray[index] === '') {
         return '{success: false}';

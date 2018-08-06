@@ -75,6 +75,7 @@ class MyServer {
       const myPayload: string = JSON.stringify(request.payload);
       const phrase: string = myPayload.replace(/"/g, '')
                                     .replace(/}/, '')
+                                    .replace(/\s/, '')
                                     .replace(/\\/g, '').split(':')[1];
 
       // Write phrase to end of storage.txt

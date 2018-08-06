@@ -106,6 +106,7 @@ var MyServer = /** @class */ (function () {
             var myPayload = JSON.stringify(request.payload);
             var phrase = myPayload.replace(/"/g, '')
                 .replace(/}/, '')
+                .replace(/\s/, '')
                 .replace(/\\/g, '').split(':')[1];
             // Write phrase to end of storage.txt
             fs.writeFileSync(filename, phrase + '\n', { flag: 'a+' });
